@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.5.4
+
+- Add PDM support
+- Add play and record support for `XD_AIOT_C3` and `ESP_SPOT`
+
 ## v0.5.3
 
 - Add support for mount SDCard on esp32

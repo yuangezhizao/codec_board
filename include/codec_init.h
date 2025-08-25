@@ -36,6 +36,7 @@ extern "C" {
 typedef enum {
     CODEC_I2S_MODE_STD = 0, /*!< STD mode */
     CODEC_I2S_MODE_TDM,     /*!< TDM mode */
+    CODEC_I2S_MODE_PDM,     /*!< PDM mode */
     CODEC_I2S_MODE_NONE,    /*!< NONE means not support */
 } codec_i2s_mode_t;
 

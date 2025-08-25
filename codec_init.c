@@ -5,6 +5,7 @@
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
 #include "driver/i2s_std.h"
 #include "driver/i2s_tdm.h"
+#include "driver/i2s_pdm.h"
 #include "soc/soc_caps.h"
 #else
 #include "driver/i2s.h"
@@ -202,6 +203,23 @@ static int _i2s_init(uint8_t port, esp_codec_dev_type_t dev_type, codec_init_cfg
             ESP_LOGI(TAG, "output init tdm ret %d", ret);
         }
 #endif
+#ifdef SOC_I2S_SUPPORTS_PDM_TX
+        else if (init_cfg->out_mode == CODEC_I2S_MODE_PDM) {
+            i2s_pdm_tx_config_t pdm_cfg = {
+                .clk_cfg = I2S_PDM_TX_CLK_DEFAULT_CONFIG(16000),
+                .slot_cfg = I2S_PDM_TX_SLOT_DEFAULT_CONFIG(16, I2S_SLOT_MODE_STEREO),
+                .gpio_cfg = {
+                    .dout = i2s_cfg.dout,
+                    .clk = i2s_cfg.bclk,
+                    .invert_flags = {
+                        .clk_inv = false,
+                    },
+                },
+            };
+            ret = i2s_channel_init_pdm_tx_mode(i2s_keep[port]->tx_handle, &pdm_cfg);
+            ESP_LOGI(TAG, "output init pdm ret %d", ret);
+        }
+#endif
     }
     if (i2s_keep[port]->rx_handle) {
         if (init_cfg->in_mode == CODEC_I2S_MODE_STD) {
@@ -212,6 +230,23 @@ static int _i2s_init(uint8_t port, esp_codec_dev_type_t dev_type, codec_init_cfg
         else if (init_cfg->in_mode == CODEC_I2S_MODE_TDM) {
             ret = i2s_channel_init_tdm_mode(i2s_keep[port]->rx_handle, &tdm_cfg);
             ESP_LOGI(TAG, "Input init tdm ret %d", ret);
+        }
+#endif
+#ifdef SOC_I2S_SUPPORTS_PDM_RX
+        else if (init_cfg->in_mode == CODEC_I2S_MODE_PDM) {
+            i2s_pdm_rx_config_t pdm_cfg = {
+                .clk_cfg = I2S_PDM_RX_CLK_DEFAULT_CONFIG(16000),
+                .slot_cfg = I2S_PDM_RX_SLOT_DEFAULT_CONFIG(16, I2S_SLOT_MODE_STEREO),
+                .gpio_cfg = {
+                    .din = i2s_cfg.din,
+                    .clk = i2s_cfg.bclk,
+                    .invert_flags = {
+                        .clk_inv = false,
+                    },
+                },
+            };
+            ret = i2s_channel_init_pdm_rx_mode(i2s_keep[port]->rx_handle, &pdm_cfg);
+            ESP_LOGI(TAG, "Input init pdm ret %d", ret);
         }
 #endif
     }
@@ -492,12 +527,18 @@ int init_codec(codec_init_cfg_t *cfg)
         };
         codec_res.record_dev = esp_codec_dev_new(&dev_cfg);
     }
-    int ret = esp_codec_dev_set_out_vol(codec_res.play_dev, 60.0);
-    ret = esp_codec_dev_set_in_gain(codec_res.record_dev, 30.0);
-    if (ret == 0) {
-        codec_res.inited = true;
+    // Set default volume and gain for play and record
+    if (codec_res.play_dev) {
+        esp_codec_dev_set_out_vol(codec_res.play_dev, 60.0);
     }
-    return ret;
+    if (codec_res.record_dev) {
+        esp_codec_dev_set_in_gain(codec_res.record_dev, 30.0);
+    }
+    if ((codec_res.play_dev != NULL) || (codec_res.record_dev != NULL)) {
+        codec_res.inited = true;
+        return 0;
+    }
+    return -1;
 }
 
 esp_codec_dev_handle_t get_playback_handle(void)
