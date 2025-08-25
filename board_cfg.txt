@@ -117,3 +117,16 @@ i2c: {sda: 40, scl: 39}
 i2s: {mclk: -1, bclk: 42, din: 41, dout: -1}
 in: {codec: DUMMY}
 camera: {type: dvp, xclk: 10, pclk: 13, vsync: 38, href: 47, d0: 15, d1: 17, d2: 18, d3: 16, d4: 14, d5: 12, d6: 11, d7: 48}
+
+Board: SPARK_BOT_45COLL
+i2c: {sda: 0, scl: 5}
+i2s: {mclk: 45, bclk: 39, ws: 41, din: 40, dout: 42}
+in_out: {codec: ES8311, pa: -1, pa_gain: 6}
+camera: {type: dvp, xclk: 15, pclk: 13, vsync: 6, href: 7, d0: 11, d1: 9, d2: 8, d3: 10, d4: 12, d5: 18, d6: 17, d7: 16}
+lcd: {
+    bus: spi, controller: st7789, spi_bus: 3,
+    mirror_x: 0, mirror_y: 0, swap_xy: 0, color_inv: 0,
+    width: 240, height: 240,
+    rst: -1,
+    cs: 46, dc: 43, clk: 21, mosi: 47, cmd_bits: 8, param_bits: 8
+}
