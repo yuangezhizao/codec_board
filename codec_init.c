@@ -662,13 +662,13 @@ int mount_sdcard(void)
     };
     sdmmc_host_t host = SDMMC_HOST_DEFAULT();
 #if CONFIG_IDF_TARGET_ESP32P4
+    host.slot = 0;
+#endif
+#if CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32P4
     host.max_freq_khz = SDMMC_FREQ_HIGHSPEED;
 #endif
     sdmmc_slot_config_t slot_config = SDMMC_SLOT_CONFIG_DEFAULT();
     slot_config.width = cfg.d3 ? 4 : 1;
-#if CONFIG_IDF_TARGET_ESP32P4
-    sdmmc_get_slot(0, &slot_config);
-#endif
 #if SOC_SDMMC_USE_GPIO_MATRIX
     slot_config.width = cfg.d3 ? 4 : 1;
     slot_config.flags |= SDMMC_SLOT_FLAG_INTERNAL_PULLUP;
@@ -685,6 +685,10 @@ int mount_sdcard(void)
     slot_config.d2 = cfg.d2 ? cfg.d2 : -1;
     slot_config.d3 = cfg.d3 ? cfg.d3 : -1;
 #endif /* SOC_SDMMC_USE_GPIO_MATRIX */
+#if CONFIG_IDF_TARGET_ESP32P4
+    sdmmc_get_slot(0, &slot_config);
+#endif
+
     printf("use %d %d %d %d\n", cfg.d0, cfg.d1, cfg.d2, cfg.d3);
     return esp_vfs_fat_sdmmc_mount("/sdcard", &host, &slot_config, &mount_config, &card);
 #else
