@@ -1,0 +1,11 @@
+dependencies:
+  esp_lcd_ek79007:
+    rules:
+    - if: target in [esp32p4]
+  espressif/esp_codec_dev: '*'
+  espressif/esp_lcd_ili9881c:
+    rules:
+    - if: target in [esp32p4]
+    version: '*'
+description: Simple ESP32 series codec board realization
+version: 0.5.0
