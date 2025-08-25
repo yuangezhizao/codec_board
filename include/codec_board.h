@@ -254,6 +254,26 @@ typedef struct {
 } board_section_t;
 
 /**
+ * @brief  Parse board all configurations from string
+ *
+ * @note  Section string like following:
+ *        "i2c: {sda: 2, scl: 1}
+ *         i2s: {bclk: 40, ws: 39, dout: 41, din: 15, mclk: 42}
+ *         out: {codec: ES8311, pa: 4, use_mclk: 1, pa_gain:6}
+ *         in: {codec: ES7210}
+ *         sdcard: {clk: 16, cmd: 38, d0: 17}
+ *        "
+ *
+ * @param[in]  section  Board section string
+ *
+ * @return
+ *       - 0   Parse OK
+ *       - -1  Failed to parse
+ *
+ */
+int codec_board_parse_all_config(const char *section);
+
+/**
  * @brief  Set codec board type
  *
  * @param[in]  board_type  Board name selection

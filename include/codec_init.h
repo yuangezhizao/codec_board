@@ -98,6 +98,15 @@ int init_codec(codec_init_cfg_t *cfg);
 esp_codec_dev_handle_t get_playback_handle(void);
 
 /**
+ * @brief  Get low-level playback i2s channel handle
+ *
+ * @return
+ *       - NULL    Fail to get playback i2s channel handle
+ *       - Others  Playback  i2s channel  handle
+ */
+void *get_playback_i2s_channel(void);
+
+/**
  * @brief  Get `esp_codec_dev` handle for record
  *
  * @return
@@ -105,6 +114,15 @@ esp_codec_dev_handle_t get_playback_handle(void);
  *       - Others  Record `esp_codec_dev` handle
  */
 esp_codec_dev_handle_t get_record_handle(void);
+
+/**
+ * @brief  Get low-level record i2s channel handle
+ *
+ * @return
+ *       - NULL    Fail to get record i2s channel handle
+ *       - Others  Record i2s channel  handle
+ */
+void *get_record_i2s_channel(void);
 
 /**
  * @brief  Get I2C master bus handle by port

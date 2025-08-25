@@ -35,6 +35,8 @@ typedef struct {
     const audio_codec_if_t      *in_codec_if;
     esp_codec_dev_handle_t       play_dev;
     esp_codec_dev_handle_t       record_dev;
+    uint8_t                      play_i2s_port;
+    uint8_t                      record_i2s_port;
 } codec_res_t;
 
 #define USE_I2C_MASTER
@@ -493,10 +495,10 @@ int init_codec(codec_init_cfg_t *cfg)
                 codec_res.in_ctrl_if = audio_codec_new_i2c_ctrl(&i2c_cfg);
                 es7210_codec_cfg_t es7210_cfg = {
                     .ctrl_if = codec_res.in_ctrl_if,
-                    .mic_selected = ES7120_SEL_MIC1 | ES7120_SEL_MIC3,
+                    .mic_selected = ES7210_SEL_MIC1 | ES7210_SEL_MIC3,
                 };
                 if (cfg->in_use_tdm || (cfg->in_mode == CODEC_I2S_MODE_TDM)) {
-                    es7210_cfg.mic_selected |= ES7120_SEL_MIC2 | ES7120_SEL_MIC4;
+                    es7210_cfg.mic_selected |= ES7210_SEL_MIC2 | ES7210_SEL_MIC4;
                 }
                 codec_res.in_codec_if = es7210_codec_new(&es7210_cfg);
             } break;
@@ -529,9 +531,11 @@ int init_codec(codec_init_cfg_t *cfg)
     }
     // Set default volume and gain for play and record
     if (codec_res.play_dev) {
+        codec_res.play_i2s_port = out_cfg.i2s_port;
         esp_codec_dev_set_out_vol(codec_res.play_dev, 60.0);
     }
     if (codec_res.record_dev) {
+        codec_res.record_i2s_port = in_cfg.i2s_port;
         esp_codec_dev_set_in_gain(codec_res.record_dev, 30.0);
     }
     if ((codec_res.play_dev != NULL) || (codec_res.record_dev != NULL)) {
@@ -546,9 +550,29 @@ esp_codec_dev_handle_t get_playback_handle(void)
     return codec_res.play_dev;
 }
 
+void *get_playback_i2s_channel(void)
+{
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
+    if (codec_res.play_dev) {
+        return i2s_keep[codec_res.play_i2s_port]->tx_handle;
+    }
+    return NULL;
+#endif
+}
+
 esp_codec_dev_handle_t get_record_handle(void)
 {
     return codec_res.record_dev;
+}
+
+void *get_record_i2s_channel(void)
+{
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
+    if (codec_res.record_dev) {
+        return i2s_keep[codec_res.record_i2s_port]->rx_handle;
+    }
+    return NULL;
+#endif
 }
 
 void deinit_codec(void)
@@ -688,8 +712,6 @@ int mount_sdcard(void)
 #if CONFIG_IDF_TARGET_ESP32P4
     sdmmc_get_slot(0, &slot_config);
 #endif
-
-    printf("use %d %d %d %d\n", cfg.d0, cfg.d1, cfg.d2, cfg.d3);
     return esp_vfs_fat_sdmmc_mount("/sdcard", &host, &slot_config, &mount_config, &card);
 #else
     return -1;

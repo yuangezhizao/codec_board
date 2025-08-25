@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.0
+
+- Upgrade dependency of `esp_codev_dev` to v1.4.0
+- Added API `codec_board_parse_all_config` for easy customized board which not in `board_cfg.txt`
+- Added API `get_playback/record_i2s_channel` to get low level i2s channel
+- Fixed build issues on IDFv6.0
+
 ## v0.5.5
 
 - Add board support for `ESP32_S3_KORVO_2L`, `ESP32_S3_EchoEar`, `ATOMS3_ECHO_BASE`

@@ -4,11 +4,21 @@
 #define TAG "BOARD"
 
 board_section_t *get_codec_section(const char *codec_type);
+board_section_t *parse_codec_section(const char *section);
 
 static board_section_t *codec;
 
 #define RET_ON_NOT_INIT() if (codec == NULL) {   \
     return -1;                                   \
+}
+
+int codec_board_parse_all_config(const char *section)
+{
+    if (codec) {
+        return 0;
+    }
+    codec = parse_codec_section(section);
+    return codec == NULL ? -1 : 0;
 }
 
 void set_codec_board_type(const char *codec_type)

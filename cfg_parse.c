@@ -421,7 +421,6 @@ static int fill_codec_cfg(board_cfg_attr_t *attr, uint8_t codec_dir)
         }
         attr = attr->next;
     }
-    printf("Codec %d dir %d type:%d\n", codec_section->codec_num, codec_dir, codec_cfg->codec_type);
     codec_section->codec_num++;
     return 0;
 }
@@ -451,7 +450,6 @@ static int fill_sdcard_cfg(board_cfg_attr_t *attr)
         }
         attr = attr->next;
     }
-    printf("Sdcard clk:%d cmd:%d d0:%d\n", sdcard_cfg->clk, sdcard_cfg->cmd, sdcard_cfg->d0);
     codec_section->sdcard_num++;
     return 0;
 }
@@ -570,15 +568,36 @@ static int parse_cfg(const char *section, int size)
     return 0;
 }
 
-board_section_t *get_codec_section(const char *codec_type)
+board_section_t *parse_codec_section(const char *section)
 {
     if (codec_section) {
         free(codec_section);
     }
     codec_section = calloc(1, sizeof(board_section_t));
+    if (codec_section == NULL) {
+        return NULL;
+    }
+    int size = strlen(section);
+    if (parse_cfg(section, size) != 0) {
+        free(codec_section);
+        return NULL;
+    }
+    return codec_section;
+}
+
+board_section_t *get_codec_section(const char *codec_type)
+{
     if (codec_type == NULL) {
         return NULL;
     }
+    if (codec_section) {
+        free(codec_section);
+    }
+    codec_section = calloc(1, sizeof(board_section_t));
+    if (codec_section == NULL) {
+        return NULL;
+    }
+
     int cfg_size = board_cfg_end - board_cfg_start;
     do {
         const char *section = get_section_data(board_cfg_start, cfg_size, codec_type);
