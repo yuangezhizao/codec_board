@@ -187,6 +187,7 @@ static int _i2s_init(uint8_t port, esp_codec_dev_type_t dev_type, codec_init_cfg
     };
     tdm_cfg.slot_cfg.total_slot = 4;
 #endif
+    chan_cfg.id = I2S_NUM_AUTO; // Use auto ID
     int ret = i2s_new_channel(&chan_cfg, output == false ? NULL : &i2s_keep[port]->tx_handle,
                               input == false ? NULL : &i2s_keep[port]->rx_handle);
     ESP_LOGI(TAG, "tx:%p rx:%p", i2s_keep[port]->tx_handle, i2s_keep[port]->rx_handle);
@@ -373,7 +374,7 @@ int init_codec(codec_init_cfg_t *cfg)
         audio_codec_i2c_cfg_t i2c_cfg = {
             .port = out_cfg.i2c_port,
 #ifdef USE_I2C_MASTER
-            .bus_handle = i2c_bus_handle[out_cfg.i2c_port],
+            .bus_handle = get_i2c_bus_handle(out_cfg.i2c_port),
 #endif
         };
         // TODO add other codec support
@@ -447,7 +448,7 @@ int init_codec(codec_init_cfg_t *cfg)
         audio_codec_i2c_cfg_t i2c_cfg = {
             .port = in_cfg.i2c_port,
 #ifdef USE_I2C_MASTER
-            .bus_handle = i2c_bus_handle[in_cfg.i2c_port],
+            .bus_handle = get_i2c_bus_handle(in_cfg.i2c_port),
 #endif
         };
         // TODO add other codec support

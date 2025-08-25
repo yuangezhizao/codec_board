@@ -8,4 +8,4 @@ dependencies:
     - if: target in [esp32p4]
     version: '*'
 description: Simple ESP32 series codec board realization
-version: 0.5.2
+version: 0.5.3
